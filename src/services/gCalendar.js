@@ -24,8 +24,11 @@ const getEvents = async (id, from, to) => {
     const last1year = new Date();
     last1year.setFullYear(new Date().getFullYear() - 1);
 
-    const timeMin = from ? new Date(from) : undefined;
-    const timeMax = to ? new Date(to) : undefined;
+    let timeMin = from ? new Date(from) : undefined;
+    let timeMax = to ? new Date(to) : undefined;
+    timeMin = timeMin == 'Invalid Date' ? undefined : timeMin;
+    timeMax = timeMax == 'Invalid Date' ? undefined : timeMax;
+    console.log("timeMin" , timeMin ,"timeMax",timeMax);
 
     const params = {
         calendarId: id,

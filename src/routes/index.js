@@ -1,9 +1,10 @@
 var express = require('express');
+var path = require('path');
 var router = express.Router();
 var calendar = require('../services/gCalendar');
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get(['/calendar/*', '/users', '/about'], function (req, res, next) {
+  res.sendFile(path.join(__dirname + '/../public/index.html'));
 });
 
 
