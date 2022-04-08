@@ -1,16 +1,11 @@
-import Avatar from '@mui/material/Avatar';
-import { grey } from '@mui/material/colors';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import parse from 'html-react-parser';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
-import useScreenDimensions from './useScreenDimensions';
-import useScreenOrientation from './useScreenOrientation';
 
 export interface GEvent {
   summary: string;
@@ -58,31 +53,30 @@ export default function Calendar() {
     console.log("Scrolling to scrollToId ...", scrollToId);
 
     if ((scrollToId != null) && (document.getElementById(scrollToId) != null)) {
-      document.getElementById(scrollToId)?.scrollIntoView();
+      document.getElementById(scrollToId)?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start'  });
     }
   }, [scrollToId]);
 
-  const orientation = useScreenOrientation();
-  const dimension = useScreenDimensions();
+  // const orientation = useScreenOrientation();
+  // const dimension = useScreenDimensions();
 
 
-  console.log(orientation, dimension);
+  // console.log(orientation, dimension);
 
 
   return (
 
     <List sx={{
-      marginLeft: "auto", marginRight: "auto", minWidth: 400, width: "80vw", height: 800, bgcolor: 'background.paper', fontFamily: 'Open Sans', overflow: 'auto', ".row:nth-child(odd)": {
+      marginLeft: "auto", marginRight: "auto", width: "90vw", height: 800, bgcolor: 'background.paper', fontFamily: 'Open Sans', overflow: 'auto', ".row:nth-of-type(odd)": {
         background: "#fdd835"
       }
     }}>
 
-      {events.map(e =>
+      {events.map((e) =>
         <div key={e.date} style={{ fontFamily: 'Open Sans', paddingLeft: 16, paddingRight: 16 }} className="row">
           <ListItem key={e.date} id={e.date} alignItems="flex-start">
-            {/* <ListItemAvatar
-            >
-              <Avatar sx={{ bgcolor: '#fdd835' }}>{e.day.substring(0, 2)}</Avatar>
+            {/* <ListItemAvatar>
+              <Avatar sx={{ bgcolor: (i % 2) ? '#fdd835' : 'white', color: (i % 2) ? 'white' : '#fdd835' }}>{e.day.substring(0, 2)}</Avatar>
             </ListItemAvatar> */}
 
             <ListItemText primary={e.day + " " + e.dateFormatted} sx={{ fontWeight: 'bold' }} primaryTypographyProps={{ fontFamily: 'Open Sans', variant: "h5", align: "center" }} />
@@ -111,6 +105,7 @@ export default function Calendar() {
           }
         </div>)
       }
+      {events.length == 0 && <div style={{ textAlign: 'center' }}>No Events</div>}
     </List >
   );
 }

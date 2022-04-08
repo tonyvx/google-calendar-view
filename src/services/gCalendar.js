@@ -8,8 +8,7 @@ const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "O
 
 
 const formatHHMM = (startDateObj) => {
-    const AMPM = (startDateObj.getHours() > 12 ? "PM" : "AM");
-    return String(AMPM == "PM" ? startDateObj.getHours() - 12 : startDateObj.getHours()).padStart(2, "0") + ":" + String(startDateObj.getMinutes()).padStart(2, "0") + " " + AMPM;
+    return startDateObj.toLocaleTimeString([], { timeZone: 'EST', timeZoneOffset: 1, hour: '2-digit', minute: '2-digit' });
 }
 
 const getDateObject = (start, defaulTime) =>
@@ -28,7 +27,7 @@ const getEvents = async (id, from, to) => {
     let timeMax = to ? new Date(to) : undefined;
     timeMin = timeMin == 'Invalid Date' ? undefined : timeMin;
     timeMax = timeMax == 'Invalid Date' ? undefined : timeMax;
-    console.log("timeMin" , timeMin ,"timeMax",timeMax);
+    console.log("timeMin", timeMin, "timeMax", timeMax);
 
     const params = {
         calendarId: id,
@@ -38,8 +37,14 @@ const getEvents = async (id, from, to) => {
         timeMax, timeMin
     };
 
-    const events = (await calendar.events.list(params)).data.items;
-    const eventMap = events.map(({ summary, description, start, end }) => {
+    let data = { items: [] };
+    try {
+        data = (await calendar.events.list(params)).data;
+    } catch (e) {
+        data.error = e && e.code;
+        console.log(data);
+    }
+    const eventMap = data.items.map(({ summary, description, start, end }) => {
         const startDateObj = getDateObject(start, "00:00:00");
         const endDateObj = getDateObject(end, "00:00:00");
         return { summary, description, start: start.dateTime || start.date, startTime: formatHHMM(startDateObj), end: end.dateTime || end.date, endTime: formatHHMM(endDateObj), timeZone: start.timeZone };
@@ -58,7 +63,6 @@ const getEvents = async (id, from, to) => {
         list.push({ date: key, dateFormatted: month[dateObj.getMonth()] + " " + dateObj.getDate(), day: dayOfWeek[dateObj.getDay()], events: eventMap[key] });
         return list;
     }, []);
-
 }
 exports.getEvents = getEvents;
 

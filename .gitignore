@@ -25,3 +25,4 @@ yarn-error.log*
 .env
 src/public/main.js
 frontend/src/footer.html
+src/public/main.js.LICENSE.txt
