@@ -53,7 +53,7 @@ export default function Calendar() {
     console.log("Scrolling to scrollToId ...", scrollToId);
 
     if ((scrollToId != null) && (document.getElementById(scrollToId) != null)) {
-      document.getElementById(scrollToId)?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start'  });
+      document.getElementById(scrollToId)?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start' });
     }
   }, [scrollToId]);
 
@@ -96,7 +96,7 @@ export default function Calendar() {
               <br />
               <Divider variant="middle" />
               <br />
-              <Typography variant="subtitle2" sx={{ fontFamily: 'Open Sans' }}>{parse(ev.description.replace("html-blob", "div").replace("html-blob", "div").replace("html-blob", "div").replace("html-blob", "div"))}</Typography>
+              <Typography variant="subtitle2" sx={{ fontFamily: 'Open Sans' }}>{parse(replaceHTMBLOB(ev))}</Typography>
               <br />
               <Divider variant="middle" />
             </>}
@@ -108,6 +108,16 @@ export default function Calendar() {
       {events.length == 0 && <div style={{ textAlign: 'center' }}>No Events</div>}
     </List >
   );
+
+  function replaceHTMBLOB(ev: GEvent): string {
+    let str: string;
+    str = ev.description;
+    while (str.indexOf("html-blob")>-1) {
+      str = str.replace("<html-blob>", "");
+      str = str.replace("</html-blob>", "");
+    }
+    return str;
+  }
 }
 
 
