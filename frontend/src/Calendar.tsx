@@ -1,3 +1,4 @@
+import { Avatar, ListItemAvatar, Paper } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -23,7 +24,7 @@ export interface GEventByDate {
   day: string;
   events: GEvent[];
 }
-export default function Calendar() {
+export default function Calendar(props: { calendarId?: string, from?: string, to?: string, customStyle?: { [block: string]: { [cssField: string]: string } } }) {
   const [events, setEvents] = React.useState<GEventByDate[]>([] as GEventByDate[]);
   const [scrollToId, setScrollToId] = React.useState<string | null>(null);
 
@@ -33,13 +34,13 @@ export default function Calendar() {
 
     console.log("Fetching events...", details);
 
-    fetch(`/${details.id}/events/${details.from}/${details.to}`)
+    fetch(`/${details.id || props.calendarId}/events/${details.from || props.from}/${details.to || props.to}`)
       .then(res => res.json())
       .then((data) => {
         setEvents(data);
       })
       .catch(console.log)
-  }, [details]);
+  }, [details, props]);
 
 
   React.useEffect(() => {
@@ -52,7 +53,7 @@ export default function Calendar() {
   React.useEffect(() => {
     console.log("Scrolling to scrollToId ...", scrollToId);
 
-    if ((scrollToId != null) && (document.getElementById(scrollToId) != null)) {
+    if ((scrollToId !== null) && (document.getElementById(scrollToId) != null)) {
       document.getElementById(scrollToId)?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'start' });
     }
   }, [scrollToId]);
@@ -65,54 +66,62 @@ export default function Calendar() {
 
 
   return (
+    <div style={{ padding: 4 }}>
+      <List sx={{
+        marginLeft: "auto", marginRight: "auto", minWidth: 300, width: '80vw', bgcolor: 'background.paper', fontFamily: "'Trebuchet MS', sans-serif",
+        // ".row:nth-of-type(odd)": {
+        //   background: "#fdd835"
+        // }
+      }} component={Paper} elevation={3}>
 
-    <List sx={{
-      marginLeft: "auto", marginRight: "auto", width: "90vw", height: 800, bgcolor: 'background.paper', fontFamily: 'Open Sans', overflow: 'auto', ".row:nth-of-type(odd)": {
-        background: "#fdd835"
-      }
-    }}>
+        {events.map((e, i) =>
+          <div key={e.date} style={{ paddingLeft: 16, paddingRight: 16 }} className="row">
+            <ListItem key={e.date} id={e.date} alignItems="flex-start">
+              <ListItemAvatar>
+                <Avatar sx={{
+                  bgcolor: '#fdd835', color: 'white'
+                }}>{e.day.substring(0, 2)}</Avatar>
+                {/* <Avatar sx={{ bgcolor: (i % 2) ? '#fdd835' : 'white', color: (i % 2) ? 'white' : '#fdd835' }}>{e.day.substring(0, 2)}</Avatar> */}
+              </ListItemAvatar>
 
-      {events.map((e) =>
-        <div key={e.date} style={{ fontFamily: 'Open Sans', paddingLeft: 16, paddingRight: 16 }} className="row">
-          <ListItem key={e.date} id={e.date} alignItems="flex-start">
-            {/* <ListItemAvatar>
-              <Avatar sx={{ bgcolor: (i % 2) ? '#fdd835' : 'white', color: (i % 2) ? 'white' : '#fdd835' }}>{e.day.substring(0, 2)}</Avatar>
-            </ListItemAvatar> */}
+              <ListItemText primary={e.day + " " + e.dateFormatted} sx={{ fontWeight: 'bold',  backgroundImage: "linear-gradient(to left, grey , white)" }} primaryTypographyProps={{ fontFamily: "'Trebuchet MS', sans-serif", variant: "h5", align: "center" }} />
 
-            <ListItemText primary={e.day + " " + e.dateFormatted} sx={{ fontWeight: 'bold' }} primaryTypographyProps={{ fontFamily: 'Open Sans', variant: "h5", align: "center" }} />
+            </ListItem>
+            {e.events.map((ev, i) => <div key={i}>
+              <Typography
+                fontFamily="'Trebuchet MS', sans-serif"
+                sx={{ display: 'flex', flexDirection: 'row' }}
+                component="span"
+                variant="subtitle1"
+                color="text.primary"
+              >
+                {ev.startTime} : {ev.summary}
+                {/* {ev.startTime} - {ev.endTime} : {ev.summary} */}
 
-          </ListItem>
-          {e.events.map((ev, i) => <div key={i}>
-            <Typography
-              sx={{ display: 'flex', flexDirection: 'row', fontFamily: 'Open Sans' }}
-              component="span"
-              variant="subtitle1"
-              color="text.primary"
-            >
-              {ev.startTime} - {ev.endTime} : {ev.summary}
-
-            </Typography>
-            {ev.description && <>
+              </Typography>
+              {ev.description && <>
+                <br />
+                <Divider variant="middle" />
+                <br />
+                <Typography variant="subtitle2" fontFamily="'Trebuchet MS', sans-serif" >{parse(replaceHTMBLOB(ev))}</Typography>
+                {/* <Typography variant="subtitle2" sx={{ fontFamily: 'Open Sans' }}>{parse(replaceHTMBLOB(ev))}</Typography> */}
+                <br />
+                <Divider variant="middle" />
+              </>}
               <br />
-              <Divider variant="middle" />
-              <br />
-              <Typography variant="subtitle2" sx={{ fontFamily: 'Open Sans' }}>{parse(replaceHTMBLOB(ev))}</Typography>
-              <br />
-              <Divider variant="middle" />
-            </>}
-            <br />
+            </div>)
+            }
           </div>)
-          }
-        </div>)
-      }
-      {events.length == 0 && <div style={{ textAlign: 'center' }}>No Events</div>}
-    </List >
+        }
+        {events.length == 0 && <div style={{ textAlign: 'center' }}>No Events</div>}
+      </List >
+    </div >
   );
 
   function replaceHTMBLOB(ev: GEvent): string {
     let str: string;
     str = ev.description;
-    while (str.indexOf("html-blob")>-1) {
+    while (str.indexOf("html-blob") > -1) {
       str = str.replace("<html-blob>", "");
       str = str.replace("</html-blob>", "");
     }

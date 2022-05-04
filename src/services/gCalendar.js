@@ -7,13 +7,14 @@ const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
-const formatHHMM = (startDateObj) => {
-    return startDateObj.toLocaleTimeString([], { timeZone: 'EST', timeZoneOffset: 1, hour: '2-digit', minute: '2-digit' });
+const formatHHMM = (startDateObj, timeZone) => {
+    return startDateObj.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
 }
 
-const getDateObject = (start, defaulTime) =>
-    new Date(start.dateTime || start.date + "T" + defaulTime);
-
+const getDateObject = (start, defaulTime) => {
+    const dateStr = (startDateStr, defaulTimeStr) => startDateStr + "T" + defaulTimeStr + ".000"
+    return new Date(start.dateTime || dateStr(start.date, defaulTime));
+}
 const getEvents = async (id, from, to) => {
     const calendar = google.calendar({
         version: 'v3',
@@ -42,7 +43,6 @@ const getEvents = async (id, from, to) => {
         data = (await calendar.events.list(params)).data;
     } catch (e) {
         data.error = e && e.code;
-        console.log(data);
     }
     const eventMap = data.items.map(({ summary, description, start, end }) => {
         const startDateObj = getDateObject(start, "00:00:00");
@@ -59,7 +59,7 @@ const getEvents = async (id, from, to) => {
     }, {});
 
     return Object.keys(eventMap).reduce((list, key) => {
-        const dateObj = new Date(eventMap[key][0].start);
+        const dateObj = getDateObject({ [eventMap[key][0].start && String(eventMap[key][0].start).indexOf('T') > -1 ? 'dateTime' : 'date']: eventMap[key][0].start }, "00:00:00");
         list.push({ date: key, dateFormatted: month[dateObj.getMonth()] + " " + dateObj.getDate(), day: dayOfWeek[dateObj.getDay()], events: eventMap[key] });
         return list;
     }, []);

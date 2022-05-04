@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use("/calendar/events", express.static(path.join(__dirname, 'public')));
 app.use("/calendar/:id", express.static(path.join(__dirname, 'public')));
 app.use("/calendar/:id/events", express.static(path.join(__dirname, 'public')));
 app.use("/calendar/:id/events/:from", express.static(path.join(__dirname, 'public')));
