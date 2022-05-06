@@ -9,8 +9,10 @@ const isProduction = process.env.NODE_ENV == "production";
 const config = {
   entry: "./src/index.tsx",
   output: {
-    path: path.resolve(__dirname, "../src/public"),
+  
+    path: path.resolve(__dirname, "public"),
   },
+  devtool: 'source-map' ,
   devServer: {
     open: true,
     host: "localhost",
