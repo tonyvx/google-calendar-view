@@ -32,9 +32,9 @@ export default function Calendar(props: { calendarId?: string, from?: string, to
 
   React.useEffect(() => {
 
-    console.log("Fetching events...", details);
+    // console.log("Fetching events...", details, props);
 
-    fetch(`/${details.id || props.calendarId}/events/${details.from || props.from}/${details.to || props.to}`)
+    fetch(`https://facilities.avx007.org/${details.id || props.calendarId}/events/${details.from || props.from}/${details.to || props.to}`)
       .then(res => res.json())
       .then((data) => {
         setEvents(data);
